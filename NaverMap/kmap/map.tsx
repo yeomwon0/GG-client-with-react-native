@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { Alert, Dimensions, Image, TouchableOpacity, View } from "react-native";
 import WebView from "react-native-webview";
