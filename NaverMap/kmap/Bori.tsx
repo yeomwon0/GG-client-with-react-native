@@ -1,32 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dimensions, Image, TouchableOpacity, View } from "react-native";
 
-const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
 
-function Bori({webviewRef}:any){
-    const sendMessage = () => {
-        const sendData = JSON.stringify([
-        {
-            name: 'w1',
-            lat: 36.3330648,
-            lng: 127.4139117,
-        },
-        {
-            name: 'w2',
-            lat: 36.300378,
-            lng: 127.333443
-        }
-    ]);
-        webviewRef.current.postMessage(sendData);
-      };
-    
-      const [state, setState] = useState(false);
-      const onPress = () => {
+function Bori(){
+    const [state, setState] = useState(false);
+
+    const onPress = () => {
         setState(current => !current);
-        sendMessage();
         console.log(state);
-      };
+    };
     
     return(
         <>
@@ -80,8 +63,6 @@ function Bori({webviewRef}:any){
             </View>
         </>
     )
-        
-    
 }
 
 export default Bori;

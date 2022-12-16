@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Alert, Dimensions, Image, TouchableOpacity, View } from "react-native";
 import WebView from "react-native-webview";
 import Bori from "./Bori";
@@ -102,6 +102,35 @@ function KMap({webviewRef}:any) {
     console.log('콘솔', e.nativeEvent.data);
     Alert.alert(e.nativeEvent.data);
   };
+
+ const sendMessage = async () => {
+   const sendData = JSON.stringify([
+     {
+       name: 'w1',
+       lat: 36.3330648,
+       lng: 127.4139117,
+      },
+      {
+        name: 'w2',
+        lat: 36.300378,
+        lng: 127.333443
+      },
+      {
+      name: 'w3',
+      lat: 36.33775543447485,
+      lng: 127.44547203436675
+    }
+  ]);
+  sleep(1000)
+  await webviewRef.current.postMessage(sendData);
+};
+useEffect(() => {
+  sendMessage()
+}, []);
+function sleep(ms:number) {
+  const wakeUpTime = Date.now() + ms;
+  while (Date.now() < wakeUpTime) {}
+}
 
   return(
     <WebView onMessage={handleOnMessage} source={{html}} ref={handleSetRef} />
