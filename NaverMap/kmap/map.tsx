@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { Alert, Dimensions, Image, TouchableOpacity, View } from "react-native";
 import WebView from "react-native-webview";
@@ -104,22 +105,33 @@ function KMap({webviewRef}:any) {
   };
 
  const sendMessage = async () => {
+   const getData:any = await axios.get('https://3ab9-2001-2d8-6967-3f1f-85a4-60cb-3c81-9262.jp.ngrok.io/ggmap');
    const sendData = JSON.stringify([
-     {
-       name: 'w1',
-       lat: 36.3330648,
-       lng: 127.4139117,
-      },
-      {
-        name: 'w2',
-        lat: 36.300378,
-        lng: 127.333443
-      },
-      {
-      name: 'w3',
-      lat: 36.33775543447485,
-      lng: 127.44547203436675
+    {
+          name: getData[0].name,
+          lat: getData[0].latitude,
+          lng: getData[0].longtitude
+    },
+    {
+      name: getData[1].name,
+      lat: getData[1].latitude,
+      lng: getData[1].longtitude
     }
+    //  {
+    //    name: 'w1',
+    //    lat: 36.3330648,
+    //    lng: 127.4139117,
+    //   },
+    //   {
+    //     name: 'w2',
+    //     lat: 36.300378,
+    //     lng: 127.333443
+    //   },
+    //   {
+    //   name: 'w3',
+    //   lat: 36.33775543447485,
+    //   lng: 127.44547203436675
+    // }
   ]);
   sleep(1000)
   await webviewRef.current.postMessage(sendData);
