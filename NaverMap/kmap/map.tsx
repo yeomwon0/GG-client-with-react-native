@@ -103,7 +103,7 @@ function KMap({webviewRef}:any) {
     console.log('콘솔', e.nativeEvent.data);
     Alert.alert(e.nativeEvent.data);
   };
-
+//1231312
 const sendMessage = async () => {
   let getData:any;
 
