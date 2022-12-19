@@ -28,8 +28,25 @@
     map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
     
     var arr1 = {}
-
     
+    if( gps == null)
+          {
+            var markerPosition = new kakao.maps.LatLng(lat, lng);
+            gps = new kakao.maps.Marker({ position: markerPosition });
+            gps.setMap(map);
+          }
+          else
+          {
+            gps.setPosition(lat, lng);
+          }
+
+    function gps(lat, lng)
+    {
+      var markerPosition = new kakao.maps.LatLng(lat, lng);
+      var gps = new kakao.maps.Marker({ position: markerPosition });
+      gps.setMap(map);
+    }
+
     document.addEventListener("message", (e) => {
         var latlng = JSON.parse(e.data)
 

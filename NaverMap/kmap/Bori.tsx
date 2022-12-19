@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Dimensions, Image, TouchableOpacity, View } from "react-native";
 
 const HEIGHT = Dimensions.get('window').height;

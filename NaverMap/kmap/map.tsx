@@ -1,10 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { Alert, Dimensions, Image, TouchableOpacity, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, Dimensions, SectionList } from "react-native";
 import WebView from "react-native-webview";
-import Bori from "./Bori";
-
-const WIDTH = Dimensions.get('window').width;
-const HEIGHT = Dimensions.get('window').height;
+import { PermissionsAndroid } from 'react-native';
+import Geolocation from 'react-native-geolocation-service'
 
 function KMap({webviewRef}:any) {
     const html = `
@@ -38,14 +36,28 @@ function KMap({webviewRef}:any) {
     map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
     
     var arr1 = {}
-
+    var state = false
     
     document.addEventListener("message", (e) => {
         var latlng = JSON.parse(e.data)
-
-        for(var i = 0; i < latlng.length; i++)
+        if(latlng[0].picket == "marker")
         {
-          mark(latlng[i].name, latlng[i].lat, latlng[i].lng)
+          for(var i = 1; i < latlng.length; i++)
+          {
+            mark(latlng[i].name, latlng[i].lat, latlng[i].lng)
+          }
+        }
+        else
+        {
+          if(state == false)
+          {
+            gps(latlng[1].lat, latlng[1].lng)
+            state = true
+          }
+          else
+          {
+            gps.setPosition(latlng[1].lat, latlng[1].lng);
+          }
         }
     })
 
@@ -54,9 +66,15 @@ function KMap({webviewRef}:any) {
       var markerPosition = new kakao.maps.LatLng(lat, lng);
       var marker = new kakao.maps.Marker({ position: markerPosition });
       marker.setMap(map);
-      // info1();
       kakao.maps.event.addListener(marker, 'click', makeOverListener(map, marker, name));
       arr1[name] = marker
+    }
+
+    function gps(lat, lng)
+    {
+      var markerPosition = new kakao.maps.LatLng(lat, lng);
+      var gps = new kakao.maps.Marker({ position: markerPosition });
+      gps.setMap(map);
     }
     
   function makeOverListener(map, marker, name) {
@@ -69,23 +87,6 @@ function KMap({webviewRef}:any) {
             _infowindow.open(map, marker);
         }
     }
-
-    //내가추가한 마커
-    var position = new kakao.maps.LatLng(36.33705543447485, 127.44507203436675);
-    var marker2 = new kakao.maps.Marker({ 
-      position: position,
-      clickable: true // 마커를 클릭했을 때 지도의 클릭 이벤트가 발생하지 않도록 설정합니다
-    }); 
-    marker2.setMap(map);
-      // 마커를 클릭했을 때 마커 위에 표시할 인포윈도우를 생성합니다
-    var iwContent = '<button onclick="print()">Send</button>', 
-      // 인포윈도우에 표출될 내용으로 HTML 문자열이나 document element가 가능합니다
-    iwRemoveable = true; // removeable 속성을 ture 로 설정하면 인포윈도우를 닫을 수 있는 x버튼이 표시됩니다
-    
-    kakao.maps.event.addListener(marker2, 'click', function () {
-      // 마커 위에 인포윈도우를 표시합니다
-      infowindow.open(map, marker2);
-    });
   </script>
   </body>
   </html>
@@ -103,47 +104,90 @@ function KMap({webviewRef}:any) {
     Alert.alert(e.nativeEvent.data);
   };
 
- const sendMessage = async () => {
-   const getData:any = await axios.get('https://3ab9-2001-2d8-6967-3f1f-85a4-60cb-3c81-9262.jp.ngrok.io/ggmap');
-   const sendData = JSON.stringify([
-    {
-          name: getData[0].name,
-          lat: getData[0].latitude,
-          lng: getData[0].longtitude
-    },
-    {
-      name: getData[1].name,
-      lat: getData[1].latitude,
-      lng: getData[1].longtitude
+const sendMessage = async () => {
+  let getData:any;
+
+  await fetch("https://00c6-2001-2d8-6967-3f1f-cd12-6489-e095-b1f9.jp.ngrok.io/ggmap")
+  .then((response) => response.json())
+  .then((data) => {
+   getData = data
+  });
+  const list = new Array();
+
+  list.push({
+    picket : 'marker',
+  },)
+
+  for(let temp of getData)
+  {
+    const data = {
+      name : temp.name,
+      lat : temp.latitude,
+      lng : temp.longtitude,
     }
-    //  {
-    //    name: 'w1',
-    //    lat: 36.3330648,
-    //    lng: 127.4139117,
-    //   },
-    //   {
-    //     name: 'w2',
-    //     lat: 36.300378,
-    //     lng: 127.333443
-    //   },
-    //   {
-    //   name: 'w3',
-    //   lat: 36.33775543447485,
-    //   lng: 127.44547203436675
-    // }
-  ]);
-  sleep(1000)
+
+    list.push(data);
+  }
+  console.log(list);
+  
+  const sendData = JSON.stringify(
+   list
+  );
   await webviewRef.current.postMessage(sendData);
 };
-useEffect(() => {
-  sendMessage()
-}, []);
+
+const send = async (latitude:any, longitude:any) => {
+  const sendLoction = JSON.stringify([
+    {
+      picket : 'me',
+    },
+    {
+      lat : latitude,
+      lng : longitude,
+    }
+  ]);
+  await webviewRef.current.postMessage(sendLoction);
+}
+
+  useEffect(() => {
+    PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    ]);
+    sendMessage();
+  }, []);
+
+  useEffect(() => {
+    const _watchId = Geolocation.watchPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        send(latitude, longitude);
+        console.log(latitude);
+        console.log(longitude);
+      },
+      error => {
+        console.log(error);
+      },
+      {
+        enableHighAccuracy: true,
+        distanceFilter: 0,
+        interval: 5000,
+        fastestInterval: 2000,
+      },
+    );
+    return () => {
+      if (_watchId) {
+        Geolocation.clearWatch(_watchId);
+      }
+    };
+  })
+
 function sleep(ms:number) {
   const wakeUpTime = Date.now() + ms;
   while (Date.now() < wakeUpTime) {}
 }
 
-  return(
+return(
     <WebView onMessage={handleOnMessage} source={{html}} ref={handleSetRef} />
   )
 }
