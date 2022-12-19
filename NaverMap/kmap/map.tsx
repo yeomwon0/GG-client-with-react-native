@@ -113,7 +113,7 @@ const sendMessage = async () => {
    getData = data
   });
   const list = new Array();
-
+  //123
   list.push({
     picket : 'marker',
   },)
