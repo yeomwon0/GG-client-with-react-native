@@ -200,7 +200,7 @@ const send = async (latitude:any, longitude:any) => {
 function sleep(ms:number) {
   const wakeUpTime = Date.now() + ms;
   while (Date.now() < wakeUpTime) {}
-}
+}2
 
 return(
     <WebView onMessage={handleOnMessage} source={{html}} ref={handleSetRef} />
