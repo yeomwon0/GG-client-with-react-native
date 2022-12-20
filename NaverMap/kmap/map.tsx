@@ -29,16 +29,23 @@ function KMap({webviewRef}:any) {
     };
     
     var map = new kakao.maps.Map(mapContainer, mapOption);
-
+    
     var mapTypeControl = new kakao.maps.MapTypeControl();
     map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
     var zoomControl = new kakao.maps.ZoomControl();
     map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
     
+    var imageSrc = 'https://i.pinimg.com/736x/5b/71/0f/5b710fb975391630d8c4467d2a378d99.jpg',
+        imageSize = new kakao.maps.Size(64, 69),
+        imageOption = {offset: new kakao.maps.Point(27,69)};
+
+    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption)
+    var gps = new kakao.maps.Marker( { image : markerImage } );
+    
     var arr1 = {}
     var state = false
     
-    document.addEventListener("message", (e) => {
+    document.addEventListener("message", async (e) => {
         var latlng = JSON.parse(e.data)
         if(latlng[0].picket == "marker")
         {
@@ -49,14 +56,14 @@ function KMap({webviewRef}:any) {
         }
         else
         {
-          if(state == false)
+          if(!state)
           {
-            gps(latlng[1].lat, latlng[1].lng)
+            gpsset(latlng[1].lat, latlng[1].lng)
             state = true
           }
           else
           {
-            gps.setPosition(latlng[1].lat, latlng[1].lng);
+            gpsset(latlng[1].lat, latlng[1].lng)
           }
         }
     })
@@ -70,11 +77,19 @@ function KMap({webviewRef}:any) {
       arr1[name] = marker
     }
 
-    function gps(lat, lng)
+    function gpsset(lat, lng)
     {
-      var markerPosition = new kakao.maps.LatLng(lat, lng);
-      var gps = new kakao.maps.Marker({ position: markerPosition });
-      gps.setMap(map);
+      if(!state)
+      {
+        var _markerPosition = new kakao.maps.LatLng(lat, lng);
+        gps.setPosition(_markerPosition);
+        gps.setMap(map);
+      }
+      else
+      {
+        var gpsPosition = new kakao.maps.LatLng(lat, lng);
+        gps.setPosition(gpsPosition);
+      }
     }
     
   function makeOverListener(map, marker, name) {
@@ -160,7 +175,7 @@ const send = async (latitude:any, longitude:any) => {
   useEffect(() => {
     const _watchId = Geolocation.watchPosition(
       position => {
-        const {latitude, longitude} = position.coords;
+        const {latitude, longitude } = position.coords;
         send(latitude, longitude);
         console.log(latitude);
         console.log(longitude);

@@ -28,23 +28,26 @@
     map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
     
     var arr1 = {}
-    
-    if( gps == null)
-          {
-            var markerPosition = new kakao.maps.LatLng(lat, lng);
-            gps = new kakao.maps.Marker({ position: markerPosition });
-            gps.setMap(map);
-          }
-          else
-          {
-            gps.setPosition(lat, lng);
-          }
 
-    function gps(lat, lng)
+    var gps = new kakao.maps.Marker();
+  
+    function gpsset(lat, lng)
     {
-      var markerPosition = new kakao.maps.LatLng(lat, lng);
-      var gps = new kakao.maps.Marker({ position: markerPosition });
-      gps.setMap(map);
+      // var gps = new kakao.maps.Marker();
+      if(!state)
+      {
+        var _markerPosition = new kakao.maps.LatLng(lat, lng);
+        // var gps = new kakao.maps.Marker({ position: _markerPosition });
+        // alert('s')
+        gps.setPosition(_markerPosition);
+        alert(gps.getPosition());
+        gps.setMap(map);
+      }
+      else
+      {
+        var gpsPosition = new kakao.maps.LatLng(latlng[1].lat, latlng[1].lng);
+        gps.setPosition(gpsPosition);
+      }
     }
 
     document.addEventListener("message", (e) => {
