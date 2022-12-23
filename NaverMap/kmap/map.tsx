@@ -54,7 +54,7 @@ function KMap({webviewRef}:any) {
             mark(latlng[i].name, latlng[i].lat, latlng[i].lng)
           }
         }
-        else
+        else if(latlng[0].picket == "me")
         {
           if(!state)
           {
@@ -66,7 +66,17 @@ function KMap({webviewRef}:any) {
             gpsset(latlng[1].lat, latlng[1].lng)
           }
         }
+        else
+        {
+          panTo(latlng[1].lat, latlng[1].lng)
+        }
     })
+
+    function panTo(lat, lng)
+    {
+      var moveLatLon = new kakao.maps.LatLng(lat, lng)
+      map.panTo(moveLatLon);
+    }
 
     function mark(name, lat, lng)
     {
@@ -122,13 +132,14 @@ function KMap({webviewRef}:any) {
 const sendMessage = async () => {
   let getData:any;
 
-  await fetch("https://00c6-2001-2d8-6967-3f1f-cd12-6489-e095-b1f9.jp.ngrok.io/ggmap")
+  await fetch("https://20ff-2001-2d8-6967-3f1f-65e4-5d3b-9c1-b603.jp.ngrok.io/ggmap")
   .then((response) => response.json())
   .then((data) => {
-   getData = data
+    getData = data
   });
+
   const list = new Array();
-  //123
+
   list.push({
     picket : 'marker',
   },)
@@ -140,10 +151,8 @@ const sendMessage = async () => {
       lat : temp.latitude,
       lng : temp.longtitude,
     }
-
     list.push(data);
   }
-  console.log(list);
   
   const sendData = JSON.stringify(
    list
@@ -169,7 +178,7 @@ const send = async (latitude:any, longitude:any) => {
       PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
     ]);
-    sendMessage();
+    // sendMessage();
   }, []);
 
   useEffect(() => {
@@ -177,8 +186,6 @@ const send = async (latitude:any, longitude:any) => {
       position => {
         const {latitude, longitude } = position.coords;
         send(latitude, longitude);
-        console.log(latitude);
-        console.log(longitude);
       },
       error => {
         console.log(error);
@@ -200,7 +207,7 @@ const send = async (latitude:any, longitude:any) => {
 function sleep(ms:number) {
   const wakeUpTime = Date.now() + ms;
   while (Date.now() < wakeUpTime) {}
-}2
+}
 
 return(
     <WebView onMessage={handleOnMessage} source={{html}} ref={handleSetRef} />

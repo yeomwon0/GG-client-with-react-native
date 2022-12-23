@@ -3,9 +3,7 @@ import React, {useRef, useState} from 'react';
 import {WebView} from 'react-native-webview';
 import KMap from './kmap/map';
 import Bori from './kmap/Bori';
-
-const WIDTH = Dimensions.get('window').width;
-const HEIGHT = Dimensions.get('window').height;
+import Search from './kmap/Search';
 
 export default function App() {
   const webviewRef = useRef();
@@ -13,6 +11,7 @@ export default function App() {
     <View style={{flex: 1}}>
       <KMap webviewRef={webviewRef}/>
       <Bori />
+      <Search webviewRef={webviewRef}/>
     </View>
   );
 }
